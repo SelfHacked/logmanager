@@ -1,7 +1,5 @@
 """Configure logging."""
 import os
-from typing import Dict, Optional
-
 import typing
 
 
@@ -11,11 +9,19 @@ class LogManager:
     def __init__(
             self,
             app_name: str,
-            log_dir: Optional[str],
-            log_group: Optional[str],
-            log_level='INFO',
+            log_level: str,
+            log_group: typing.Optional[str],
+            log_dir: typing.Optional[str],
     ):
-        """Initializer."""
+        """
+        Initialize LogManager.
+
+        Args:
+            app_name: Name of the application.
+            log_level: Log level for the logging output.
+            log_group: CloudWatch log group.
+            log_dir: Folder for logging.
+        """
         self._app_name = app_name
         self._log_dir = log_dir
         self._log_group = log_group
@@ -52,11 +58,11 @@ class LogManager:
         if self._log_group:
             self._add_cloudwatch_handler()
 
-        self._loggers: Dict[str, dict] = {}
+        self._loggers: typing.Dict[str, dict] = {}
 
     @property
     def config(self) -> dict:
-        """Get Configuration."""
+        """Get logging configuration."""
         config = self._config
         config['handlers'] = self._handlers
         config['loggers'] = self._loggers
@@ -70,10 +76,12 @@ class LogManager:
             propagate=False,
     ):
         """
-        Add a logger with handlers.
+        Add logger with existing handlers.
 
-        Add logger with File handler and CloudWatch handler
-        if log_group is specified.
+        Args:
+            logger: Name of the logger.
+            level: Log Level for the logger.
+            propagate: Propagate downstream.
         """
         self._loggers[logger] = {
             'propagate': propagate,
@@ -114,7 +122,16 @@ class DefaultLogManager(LogManager):
             log_dir: str = None,
             loggers: typing.List[str] = None,
     ):
-        """Initializer."""
+        """
+        Initialize LogManager.
+
+        Args:
+            app_name: Name of the application.
+            log_level: Log level for the logging output.
+            log_group: CloudWatch log group.
+            log_dir: Folder for logging.
+            loggers: Loggers to be added to the logs.
+        """
         super().__init__(app_name, log_dir, log_group, log_level)
 
         # add default loggers
