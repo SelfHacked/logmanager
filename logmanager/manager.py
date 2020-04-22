@@ -1,0 +1,133 @@
+"""Configure logging."""
+import os
+from typing import Dict, Optional
+
+import typing
+
+
+class LogManager:
+    """Configure logging."""
+
+    def __init__(
+            self,
+            app_name: str,
+            log_dir: Optional[str],
+            log_group: Optional[str],
+            log_level='INFO',
+    ):
+        """Initializer."""
+        self._app_name = app_name
+        self._log_dir = log_dir
+        self._log_group = log_group
+        self._default_log_level = log_level
+
+        self._config = {
+            'version': 1,
+            'disable_existing_loggers': False,
+            'formatters': {
+                'default': {
+                    'format': '%(levelname)s [%(asctime)s] %(message)s',
+                },
+                'combined': {
+                    'format':
+                        '%(name)s %(levelname)s [%(asctime)s] %(message)s',
+                },
+                'db': {
+                    'format': '[%(asctime)s]\n%(message)s\n',
+                },
+            },
+            'handlers': {},
+            'loggers': {},
+        }
+
+        self._handlers = {
+            'console': {
+                'class': 'logging.StreamHandler',
+                'formatter': 'combined',
+            },
+        }
+        if self._log_dir:
+            self._add_file_handler()
+
+        if self._log_group:
+            self._add_cloudwatch_handler()
+
+        self._loggers: Dict[str, dict] = {}
+
+    @property
+    def config(self) -> dict:
+        """Get Configuration."""
+        config = self._config
+        config['handlers'] = self._handlers
+        config['loggers'] = self._loggers
+
+        return config
+
+    def add_logger(
+            self,
+            logger: str,
+            level: str = None,
+            propagate=False,
+    ):
+        """
+        Add a logger with handlers.
+
+        Add logger with File handler and CloudWatch handler
+        if log_group is specified.
+        """
+        self._loggers[logger] = {
+            'propagate': propagate,
+            'handlers': [*self._handlers],
+            'level': level or self._default_log_level,
+        }
+
+    def _add_file_handler(self, formatter='default'):
+        if not os.path.exists(self._log_dir):
+            os.makedirs(self._log_dir)
+
+        self._handlers['file'] = {
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'formatter': formatter,
+            'filename': os.path.join(self._log_dir, f'{self._app_name}.log'),
+            'when': 'midnight',
+        }
+
+    def _add_cloudwatch_handler(self, formatter='combined'):
+        self._handlers['cloudwatch'] = {
+            'class': 'watchtower.CloudWatchLogHandler',
+            'formatter': formatter,
+            'log_group': self._log_group,
+            'stream_name': f'{self._app_name}-{{strftime:%Y-%m-%d}}',
+            'use_queues': True,
+            'create_log_group': False,
+        }
+
+
+class DefaultLogManager(LogManager):
+    """Default log manager to manage django logs."""
+
+    def __init__(
+            self,
+            app_name: str,
+            log_level: str = None,
+            log_group: str = None,
+            log_dir: str = None,
+            loggers: typing.List[str] = None,
+    ):
+        """Initializer."""
+        super().__init__(app_name, log_dir, log_group, log_level)
+
+        # add default loggers
+        self._add_loggers([
+            'django.server', 'django.request',
+            'django.security.*', 'django.db',
+            'app',
+        ])
+
+        # add custom loggers
+        if loggers:
+            self._add_loggers(loggers)
+
+    def _add_loggers(self, loggers: typing.List[str]):
+        for logger in loggers:
+            self.add_logger(logger)
