@@ -139,8 +139,12 @@ class DefaultLogManager(LogManager):
 
         # add default loggers
         self._add_loggers([
+            # django loggers
             'django.server', 'django.request',
             'django.security.*', 'django.db',
+            # celery loggers
+            'celery', 'celery.worker', 'celery.app',
+            # application loggers
             'app',
         ])
 
