@@ -31,7 +31,9 @@ LOGGING = DefaultLogManager(
 
 Note: Any custom loggers (ex: application modules) should be included in `loggers`. 
 
-## Logging with default logger
+## Using Log Manager
+
+### Option 1: Logging with default logger
 
 Use `logger` from `logmanager` to log with `app` logger.
 
@@ -41,7 +43,7 @@ from logmanager import logger
 logger.info('Test Log Message!')
 ```
 
-## Logging with custom logger
+### Option 2: Logging with custom logger
 
 Use built-in logger to log with module logger (or custom logger). If module logger (or a custom logger) is used, name of the logger should be added to `logger` argument of `DefaultLogManager`.
 
