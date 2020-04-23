@@ -34,11 +34,16 @@ class LogManager:
                 'default': {
                     'format': '%(levelname)s [%(asctime)s] %(message)s',
                 },
-                'combined': {
+                'basic': {
                     'format': (
-                        '%(name)s %(levelname)s '
-                        '[%(asctime)s %(processName)s] '
+                        '%(asctime)s %(levelname)s %(processName)s %(name)s '
                         '%(message)s'
+                    ),
+                },
+                'full': {
+                    'format': (
+                        '%(asctime)s %(levelname)s %(processName)s %(name)s  '
+                        '%(filename)s:%(lineno)d %(message)s'
                     ),
                 },
                 'db': {
@@ -52,7 +57,7 @@ class LogManager:
         self._handlers = {
             'console': {
                 'class': 'logging.StreamHandler',
-                'formatter': 'combined',
+                'formatter': 'basic',
             },
         }
         if self._log_dir:
@@ -92,7 +97,7 @@ class LogManager:
             'level': level or self._default_log_level,
         }
 
-    def _add_file_handler(self, formatter='combined'):
+    def _add_file_handler(self, formatter='full'):
         if not os.path.exists(self._log_dir):
             os.makedirs(self._log_dir)
 
@@ -103,7 +108,7 @@ class LogManager:
             'when': 'midnight',
         }
 
-    def _add_cloudwatch_handler(self, formatter='combined'):
+    def _add_cloudwatch_handler(self, formatter='full'):
         self._handlers['cloudwatch'] = {
             'class': 'watchtower.CloudWatchLogHandler',
             'formatter': formatter,
