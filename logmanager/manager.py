@@ -132,7 +132,7 @@ class DefaultLogManager(LogManager):
             log_dir: Folder for logging.
             loggers: Loggers to be added to the logs.
         """
-        super().__init__(app_name, log_dir, log_group, log_level)
+        super().__init__(app_name, log_level, log_group, log_dir)
 
         # add default loggers
         self._add_loggers([
