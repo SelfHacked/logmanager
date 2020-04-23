@@ -55,7 +55,7 @@ class LogRequestMiddleware:
         path = self._get_value(request, 'PATH_INFO')
         status_code = response.status_code if response else 500
         user_id = self._get_user_id(request)
-        
+
         logger.info(' '.join([
             client_ip,
             f'{remote_addr},{x_forwarded_for}',

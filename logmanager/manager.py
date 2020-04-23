@@ -35,8 +35,11 @@ class LogManager:
                     'format': '%(levelname)s [%(asctime)s] %(message)s',
                 },
                 'combined': {
-                    'format':
-                        '%(name)s %(levelname)s [%(asctime)s] %(message)s',
+                    'format': (
+                        '%(name)s %(levelname)s '
+                        '[%(asctime)s %(processName)s] '
+                        '%(message)s'
+                    ),
                 },
                 'db': {
                     'format': '[%(asctime)s]\n%(message)s\n',
@@ -89,7 +92,7 @@ class LogManager:
             'level': level or self._default_log_level,
         }
 
-    def _add_file_handler(self, formatter='default'):
+    def _add_file_handler(self, formatter='combined'):
         if not os.path.exists(self._log_dir):
             os.makedirs(self._log_dir)
 
