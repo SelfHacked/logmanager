@@ -54,7 +54,8 @@ class LogRequestMiddleware:
         method = self._get_value(request, 'REQUEST_METHOD')
         path = self._get_value(request, 'PATH_INFO')
         status_code = response.status_code if response else 500
-        user_id = request.user.id or self.NO_VALUE_MARKER
+        user_id = self._get_user_id(request)
+        
         logger.info(' '.join([
             client_ip,
             f'{remote_addr},{x_forwarded_for}',
@@ -63,6 +64,13 @@ class LogRequestMiddleware:
             str(status_code),
             f'"{user_agent}"',
         ]))
+
+    def _get_user_id(self, request) -> str:
+        user_id = None
+        if request.user:
+            user_id = request.user.id
+
+        return user_id or self.NO_VALUE_MARKER
 
     def _get_value(self, request, key):
         return request.META.get(key, self.NO_VALUE_MARKER)
