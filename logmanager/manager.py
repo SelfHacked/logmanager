@@ -36,14 +36,16 @@ class LogManager:
                 },
                 'basic': {
                     'format': (
-                        '%(asctime)s %(levelname)s %(processName)s %(name)s '
-                        '%(message)s'
+                        '%(asctime)s %(levelname)s '
+                        '%(processName)s %(process)d '
+                        '%(name)s %(message)s'
                     ),
                 },
                 'full': {
                     'format': (
-                        '%(asctime)s %(levelname)s %(processName)s %(name)s  '
-                        '%(filename)s:%(lineno)d %(message)s'
+                        '%(asctime)s %(levelname)s '
+                        '%(processName)s:%(process)d '
+                        '%(name)s %(filename)s:%(lineno)d %(message)s'
                     ),
                 },
                 'db': {
